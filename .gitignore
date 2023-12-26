@@ -55,6 +55,12 @@ cover/
 *.mo
 *.pot
 
+
+#project'things
+*.xlsx
+*.session
+*.session-journal
+
 # Django stuff:
 *.log
 local_settings.py
@@ -151,6 +157,11 @@ dmypy.json
 
 # Cython debug symbols
 cython_debug/
+
+*.db
+*.session
+*.session-journal
+*.xlsx
 
 # PyCharm
 #  JetBrains specific template is maintained in a separate JetBrains.gitignore that can

@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "businesscat"
+version = "0.1.0"
+description = "there is a telegram bot for receive payment ticket to feed a cost sheet for the people at the telegram group"
+authors = ["Jaime Bruno Cirne de Oliveira"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+python-telegram-bot = "^20.7"
+pytesseract = "^0.3.10"
+pillow = "^10.1.0"
+certifi = "2021.10.8"
+charset-normalizer = "2.0.9"
+idna = "3.3"
+ocrspace = "2.3.0"
+pyaes = "1.6.1"
+pyasn1 = "0.4.8"
+pycodestyle = "2.8.0"
+python-dotenv = "0.19.2"
+requests = "2.26.0"
+rsa = "4.8"
+telethon = "1.24.0"
+urllib3 = "1.26.7"
+langchain = "^0.0.352"
+openai = "^1.6.1"
+tiktoken = "^0.5.2"
+pandas = "^2.1.4"
+openpyxl = "^3.1.2"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
