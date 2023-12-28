@@ -1,6 +1,5 @@
 import logging
 import time
-import os
 import sys
 from telethon.tl.types import Chat
 
