@@ -123,7 +123,7 @@ async def pic_event_handler(event):
             logger.info(pagamento)
             logger.info(f"user_id {user_id} user_name {user_name} is done")
             adicionar_pagamento(user_id, user_name, pagamento.valor, pagamento.estabelecimento, pagamento.categoria, pagamento.quando)        
-            data_print = f"{pagamento.quando.dia}/{pagamento.quando.mes}/{pagamento.quando.ano} às {pagamento.quando.hora}:{pagamento.quando.minutos}:{pagamento.quando.segundos}"
+            data_print = f"{pagamento.quando.strftime('%d-%m-%Y %H:%M')}"
             await event.reply(f"{data_print} {user_name} pagou R$ {pagamento.valor} em {pagamento.estabelecimento} - Comporvante contabilizado")
         except ValueError as e:
             await event.reply(f"Erro: {e}")          

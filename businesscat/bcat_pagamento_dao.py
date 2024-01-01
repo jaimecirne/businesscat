@@ -15,7 +15,6 @@ logging.basicConfig(
 # get logger
 logger = logging.getLogger(__name__)
 
-
 conn = sqlite3.connect('dados.db')
 
 cursor = conn.cursor()
@@ -38,11 +37,11 @@ def adicionar_pagamento(user_id, nome, valor, estabelecimento, categoria, quando
     cursor.execute('''
         SELECT * FROM pagamento
         WHERE valor = ? AND estabelecimento = ? AND quando = ?
-    ''', (valor, estabelecimento, quando.datetime.strftime("%Y-%m-%d %H:%M")))
+    ''', (valor, estabelecimento, quando.strftime("%Y-%m-%d %H:%M")))
 
     if cursor.fetchone() is None:    
         # Se não existir, realizar a inserção
-        cursor.execute('INSERT INTO pagamento (user_id, nome, valor, estabelecimento, categoria, quando) VALUES (?, ?, ?, ?, ?, ?)', (user_id, nome, valor, estabelecimento, categoria, quando.datetime.strftime("%Y-%m-%d %H:%M")))
+        cursor.execute('INSERT INTO pagamento (user_id, nome, valor, estabelecimento, categoria, quando) VALUES (?, ?, ?, ?, ?, ?)', (user_id, nome, valor, estabelecimento, categoria, quando.strftime("%Y-%m-%d %H:%M")))
         conn.commit()
     else:
         raise ValueError("Um pagamento com os mesmos valores já existe no banco de dados.")
