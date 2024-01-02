@@ -1,3 +1,5 @@
 #!/bin/bash
-poetry install
-poetry run /usr/bin/env .venv/bin/python businesscat/bcat_main.py
+source /opt/poetry-venv/bin/activate
+poetry install 
+which python
+python businesscat/bcat_main.py
