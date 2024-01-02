@@ -94,9 +94,13 @@ def analisar_texto_pagamento(source_text, OPENAI_API_KEY):
 
         prompt = ChatPromptTemplate.from_template(template)
 
-        chain = create_extraction_chain_pydantic(pydantic_schema=Pagamento, llm=llm, prompt=prompt)
+        chain = prompt | llm
 
-        result = chain.run({"input": texts[0]})
+        text_fixed = chain.invoke({"input": texts[0]})
+
+        chain = create_extraction_chain_pydantic(pydantic_schema=Pagamento, llm=llm)
+
+        result = chain.run(text_fixed)
 
         return result[0]
     
