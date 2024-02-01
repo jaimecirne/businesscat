@@ -44,6 +44,47 @@ def convrt_return_txt(pic_location):
     finally:
         clean_up_pix(pic_location)
 
+def fechar_balanco():
+    pagamentos = obter_pagamentos()
+
+    if not pagamentos:
+        raise ValueError("Não há dados para gerar a planilha.")
+        
+    # Criar um DataFrame com os dados
+    colunas = ["ID", "User ID", "Nome", "Valor", "Estabelecimento", "Categoria", "Quando"]
+    df = pd.DataFrame(pagamentos, columns=colunas)
+
+    resultado = df.groupby(['User ID', 'Nome'])['Valor'].sum().reset_index()
+
+    return resultado
+
+def fechar_balanco_meses():
+    pagamentos = obter_pagamentos()
+
+    if not pagamentos:
+        raise ValueError("Não há dados para gerar a planilha.")
+        
+    # Criar um DataFrame com os dados
+    colunas = ["ID", "User ID", "Nome", "Valor", "Estabelecimento", "Categoria", "Quando"]
+    df = pd.DataFrame(pagamentos, columns=colunas)
+
+    df['Quando'] = pd.to_datetime(df['Quando'])
+
+    # Extrair o mês da coluna 'Quando'
+    df['Mês'] = df['Quando'].dt.month
+
+    df['Ano'] = df['Quando'].dt.year
+    
+    # Agrupar por 'User ID', 'Nome' e 'Mês', e calcular a soma dos 'Valores'
+    resultado =  df.groupby(['User ID', 'Nome', 'Mês', 'Ano'])['Valor'].sum().reset_index()
+
+    # Criar um arquivo Excel
+    arquivo_excel = "planilha__balancos_pormes.xlsx"
+    writer = pd.ExcelWriter(arquivo_excel, engine='openpyxl')
+    resultado.to_excel(writer, index=False, sheet_name='Balancos')
+    writer.close()
+
+    return  arquivo_excel
 
 def gerar_planilha():
     pagamentos = obter_pagamentos()

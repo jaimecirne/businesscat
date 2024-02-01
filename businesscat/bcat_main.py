@@ -10,7 +10,7 @@ from telethon import (
     events
 )
 
-from bcat_helper import (respond_error, convrt_return_txt, clean_up_pix, gerar_planilha)
+from bcat_helper import (respond_error, convrt_return_txt, clean_up_pix, fechar_balanco, fechar_balanco_meses, gerar_planilha)
 
 from businesscat.bcat_ai import (analisar_texto_pagamento)
 
@@ -41,6 +41,50 @@ async def start_event_handler(event):
     user_id, user_name = await get_id_user_name(event)
     logger.info(f"user_id {user_id} user_name {user_name} has started the bot")
     await event.respond(f" Mewn **{user_name}** eu sou o Mimi contador, se você me mandar um print eu vou pegar os dados e colocar na planilha de gastos.")
+
+
+@botter.on(events.NewMessage(incoming=True, pattern="/acertomes"))
+async def balence_month_event_handler(event):
+    if not await verificar_permissao(event):
+        return
+    user_id, user_name = await get_id_user_name(event)
+    logger.info(f"user_id {user_id} user_name {user_name} has clicked /balanco")
+    
+    loading_gif = await event.reply("Deixa eu analizar aqui, ...", file='loading.gif')
+    
+    try:
+        arquivo = fechar_balanco_meses()
+    except ValueError as e:
+        await event.reply(f"Erro: {e}")
+    else:
+        await event.reply(file=arquivo)
+    finally:
+        await loading_gif.delete()
+
+@botter.on(events.NewMessage(incoming=True, pattern="/acerto"))
+async def balanco_event_handler(event):
+    if not await verificar_permissao(event):
+        return
+    user_id, user_name = await get_id_user_name(event)
+    logger.info(f"user_id {user_id} user_name {user_name} has clicked /balanco")
+    
+    loading_gif = await event.reply("Deixa eu analizar aqui, ...", file='loading.gif')
+    
+    try:
+        balanco = fechar_balanco()
+    except ValueError as e:
+        await event.reply(f"Erro: {e}")
+    else:
+        mensagens = []
+        for _, row in balanco.iterrows():
+            mensagem = f"**Nome:** {row['Nome']}\n**Soma dos Valores:** R$ {row['Valor']:.2f}"
+            mensagens.append(mensagem)
+
+        # Concatenar todas as mensagens para criar a mensagem final
+        mensagem_final = "\n\n".join(mensagens)
+        await event.reply(mensagem_final, parse_mode='markdown')
+    finally:
+        await loading_gif.delete()
 
 @botter.on(events.NewMessage(incoming=True, pattern="/planilha"))
 async def planilha_event_handler(event):
@@ -90,6 +134,10 @@ async def check_content(event):
     elif event.raw_text.lower() == "/start" or event.raw_text.lower() == f"@{bot_info.username.lower()} /start":
         return False
     elif event.raw_text.lower() == "/planilha" or event.raw_text.lower() == f"@{bot_info.username.lower()} /planilha":
+        return False
+    elif event.raw_text.lower() == "/acerto" or event.raw_text.lower() == f"@{bot_info.username.lower()} /planilha":
+        return False
+    elif event.raw_text.lower() == "/acertomes" or event.raw_text.lower() == f"@{bot_info.username.lower()} /planilha":
         return False
     elif event.raw_text.lower() == "/help" or event.raw_text.lower() == f"@{bot_info.username.lower()} /help":
         return False
