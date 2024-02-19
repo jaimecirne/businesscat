@@ -46,7 +46,12 @@ def adicionar_pagamento(user_id, nome, valor, estabelecimento, categoria, quando
     else:
         raise ValueError("Um pagamento com os mesmos valores já existe no banco de dados.")
 
-    
+
+def remover_pagamento(user_id, pagamento_id):
+    # Verificar se já existe um pagamento com os mesmos valores
+    cursor.execute('DELETE FROM pagamento WHERE id = ? AND user_id = ?', (int(pagamento_id),user_id ))
+    conn.commit()
+
 def obter_pagamentos():
     cursor.execute('SELECT * FROM pagamento')
     return cursor.fetchall()

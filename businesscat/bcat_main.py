@@ -2,6 +2,7 @@ import logging
 import time
 import sys
 from telethon.tl.types import Chat
+import re
 
 # 3rd party libs
 from telethon import (
@@ -14,7 +15,7 @@ from bcat_helper import (respond_error, convrt_return_txt, clean_up_pix, fechar_
 
 from businesscat.bcat_ai import (analisar_texto_pagamento)
 
-from bcat_pagamento_dao import (adicionar_pagamento)
+from bcat_pagamento_dao import (adicionar_pagamento, remover_pagamento)
 
 from bcat_security import (get_var_path, verificar_permissao)
 
@@ -61,6 +62,7 @@ async def balence_month_event_handler(event):
     finally:
         await loading_gif.delete()
 
+
 @botter.on(events.NewMessage(incoming=True, pattern="/acerto"))
 async def balanco_event_handler(event):
     if not await verificar_permissao(event):
@@ -105,6 +107,41 @@ async def planilha_event_handler(event):
         await loading_gif.delete()
 
 
+@botter.on(events.NewMessage(incoming=True, pattern="/remover \d+"))
+async def pic_event_handler(event):
+    if not await verificar_permissao(event):
+        return
+
+    user_id, user_name = await get_id_user_name(event)
+    logger.info(f"checking if user_id {user_id} user_name {user_name} sent a command")
+
+    # Extrai o comando e argumentos da mensagem
+    command_parts = event.raw_text.split()
+    if len(command_parts) >= 2 and command_parts[0].lower() == "/remover":
+        logger.info(f"user_id {user_id} user_name {user_name} has sent a proper picture")
+        loading_gif = await event.reply("Deixa eu analizar esse print aqui, ...", file='loading.gif')
+        logger.info(f"sent loading_gif to user_id {user_id} user_name {user_name}")        
+        try:
+            # Extrai o ID do pagamento
+            pagamento_id = command_parts[1]
+
+            # Chama o método para remover o pagamento
+            remover_pagamento(user_id, pagamento_id)
+
+            logger.info(f"Payment with ID {pagamento_id} removed by user_id {user_id} user_name {user_name}")
+            await event.reply(f"Pagamento com ID {pagamento_id} removido com sucesso.")
+        except ValueError as e:
+            await event.reply(f"Erro: {e}")          
+        else:
+            logger.info(f"successfully sent extracted text to user_id {user_id} user_name {user_name}")
+        finally:
+            await loading_gif.delete()
+    else:
+        # Aqui continua a lógica para outros tipos de mensagens ou comandos
+        # ...
+        pass
+
+
 @botter.on(events.NewMessage(incoming=True, pattern="/help"))
 async def help_event_handler(event):
     if not await verificar_permissao(event):
@@ -132,6 +169,8 @@ async def check_content(event):
     if event.photo:
         return True
     elif event.raw_text.lower() == "/start" or event.raw_text.lower() == f"@{bot_info.username.lower()} /start":
+        return False
+    elif re.match("/remover \d+", event.raw_text.lower()) or event.raw_text.lower() == f"@{bot_info.username.lower()} /remover":
         return False
     elif event.raw_text.lower() == "/planilha" or event.raw_text.lower() == f"@{bot_info.username.lower()} /planilha":
         return False
