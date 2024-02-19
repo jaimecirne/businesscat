@@ -49,7 +49,19 @@ def adicionar_pagamento(user_id, nome, valor, estabelecimento, categoria, quando
 
 def remover_pagamento(user_id, pagamento_id):
     # Verificar se já existe um pagamento com os mesmos valores
-    cursor.execute('DELETE FROM pagamento WHERE id = ? AND user_id = ?', (int(pagamento_id),user_id ))
+
+    cursor.execute('''
+        SELECT * FROM pagamento
+        WHERE id = ? AND user_id = ?
+    ''', (pagamento_id, user_id))
+
+    if cursor.fetchone() is not None:    
+        # Se não existir, realizar a inserção
+        cursor.execute('DELETE FROM pagamento WHERE id = ? AND user_id = ?', (int(pagamento_id),user_id ))
+        conn.commit()
+    else:
+        raise ValueError("Um pagamento tem que ser removido pelo usuário que adicionou.")
+
     conn.commit()
 
 def obter_pagamentos():
