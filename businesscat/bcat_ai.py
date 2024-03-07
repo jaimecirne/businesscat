@@ -1,5 +1,6 @@
 import sys
 import os
+import re
 import logging
 from bcat_pagamento_dao import (obter_pagamentos)
 from langchain.chains import create_extraction_chain_pydantic
@@ -71,10 +72,21 @@ def respond_error(error_details):
     logger.error(f"{error_details}", exc_info=True)
     sys.exit(1)
 
+def limpar_string(s):
+    # Remover caracteres de controle como \r\n
+    s = re.sub(r'[\r\n]+', ' ', s)
+
+    # Substituir sequências de caracteres não informativos
+    # Por exemplo: •t.'i<t-a
+    # Você pode adicionar ou modificar estas regras conforme necessário
+    s = re.sub(r'•t\.\'i<t-a', '', s)
+
+    return s.strip()
 
 def analisar_texto_pagamento(source_text, OPENAI_API_KEY):
     text_splitter = CharacterTextSplitter()
-    texts = text_splitter.split_text(source_text)
+    texto_limpo = limpar_string(source_text)
+    texts = text_splitter.split_text(texto_limpo)
 
     logger.info(texts)        
 
